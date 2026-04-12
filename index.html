@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>言葉の波 — Kotoba no Nami</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #0a0a0a; overflow: hidden; cursor: none; }
+    canvas { display: block; }
+    #hint {
+      position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+      color: rgba(200,184,154,0.5); font: 12px sans-serif; letter-spacing: 2px;
+      pointer-events: none; transition: opacity 2s;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="c"></canvas>
+  <div id="hint">動かしてみて — Move your cursor across the wave</div>
+  <script type="module" src="./src/interactive.ts"></script>
+</body>
+</html>

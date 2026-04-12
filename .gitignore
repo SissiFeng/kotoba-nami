@@ -1,0 +1,14 @@
+node_modules/
+src/
+great-wave.jpg
+server.ts
+render-node.ts
+build.py
+tsconfig.json
+package.json
+bun.lock
+package.lock
+CLAUDE.md
+*.ts
+!dist/
+.cursor/

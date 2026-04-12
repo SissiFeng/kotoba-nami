@@ -12,3 +12,5 @@ CLAUDE.md
 *.ts
 !dist/
 .cursor/
+*.png
+!dist/

@@ -3015,9 +3015,9 @@ function measureLineStats(prepared, maxWidth) {
 }
 
 // src/interactive-deploy.ts
-var WAVE = "波海潮浪泡沫濤流渦なみうみみずしおながれうず荒波大波白波波紋波濤怒濤船舟帆沈む浮かぶ逆波".match(/.{1,3}/g);
-var SKY = "空雲風天気青嵐雷雨そらくもかぜあおあらし富士山岳峰嶺高遠ふじやまたかとお朝夕暮暁".match(/.{1,3}/g);
-var FOAM = "白雪花明純清輝冴しろゆききらひか華霧霞露光".match(/.{1,3}/g);
+var WAVE = ["波", "海", "潮", "浪", "泡", "沫", "濤", "流", "渦", "水", "海", "波", "浪", "潮", "船", "舟", "帆", "渦", "流"];
+var SKY = ["空", "雲", "風", "天", "気", "青", "嵐", "雷", "山", "岳", "峰", "嶺", "高", "遠", "朝", "夕", "暮", "暁"];
+var FOAM = ["白", "雪", "光", "明", "純", "清", "輝", "花", "霧", "霞", "露", "冴"];
 function pickWord(r, g, b) {
   const lum = 0.299 * r + 0.587 * g + 0.114 * b;
   if (b > r * 1.4 && lum < 130)
@@ -3078,11 +3078,12 @@ function pickWord(r, g, b) {
     }
   }, { passive: false });
   const words = [];
-  const fontSize = Math.max(7, Math.round(10 * sx));
-  const lineHeight = Math.floor(fontSize * 1.2);
-  const font = `${fontSize}px "Noto Sans JP","Hiragino Sans","Yu Gothic",monospace`;
+  const baseFontSize = Math.max(16, Math.round(22 * sx));
+  const lineHeight = Math.floor(baseFontSize * 1.8);
+  const hGap = Math.floor(baseFontSize * 0.5);
+  const font = `bold ${baseFontSize}px "Noto Sans JP","Hiragino Sans","Yu Gothic",monospace`;
   for (let iy = 0;iy < img.height; iy += Math.round(lineHeight / sy)) {
-    let ix = Math.random() * 4;
+    let ix = Math.random() * hGap;
     while (ix < img.width) {
       const px = Math.min(Math.floor(ix), img.width - 1);
       const py = Math.min(Math.floor(iy + lineHeight / sy / 2), img.height - 1);
@@ -3094,16 +3095,17 @@ function pickWord(r, g, b) {
       try {
         const prep = prepareWithSegments(text, font);
         const st = measureLineStats(prep, 9999);
-        width = st.maxLineWidth > 0 ? st.maxLineWidth : fontSize * text.length;
+        width = st.maxLineWidth > 0 ? st.maxLineWidth : baseFontSize;
       } catch {
-        width = fontSize * text.length;
+        width = baseFontSize;
       }
-      const boost = 1.15;
-      const er = Math.min(255, Math.round(r * boost + (lum < 80 ? 15 : 5)));
-      const eg = Math.min(255, Math.round(g * boost + (lum < 80 ? 10 : 5)));
-      const eb = Math.min(255, Math.round(b * boost + (lum < 80 ? 20 : 8)));
-      const alpha = lum < 60 ? 0.7 : lum < 120 ? 0.85 : 0.95;
+      const boost = 1.25;
+      const er = Math.min(255, Math.round(r * boost + (lum < 80 ? 25 : 10)));
+      const eg = Math.min(255, Math.round(g * boost + (lum < 80 ? 20 : 10)));
+      const eb = Math.min(255, Math.round(b * boost + (lum < 80 ? 30 : 12)));
+      const alpha = lum < 40 ? 0.6 : lum < 100 ? 0.8 : 0.95;
       const cx = ix * sx, cy = iy * sy;
+      const wordWidth = width * sx;
       words.push({
         text,
         ox: cx,
@@ -3112,16 +3114,16 @@ function pickWord(r, g, b) {
         y: cy,
         vx: 0,
         vy: 0,
-        fontSize,
+        fontSize: baseFontSize,
         r: er,
         g: eg,
         b: eb,
         alpha,
-        width: width * sx,
+        width: wordWidth,
         rotation: 0,
         scale: 1
       });
-      ix += width + 1;
+      ix += width + hGap * 2;
     }
   }
   function drawCursor() {
@@ -3129,7 +3131,7 @@ function pickWord(r, g, b) {
       return;
     ctx.save();
     ctx.beginPath();
-    ctx.arc(mx, my, 18, 0, Math.PI * 2);
+    ctx.arc(mx, my, 22, 0, Math.PI * 2);
     ctx.strokeStyle = "rgba(255,255,255,0.3)";
     ctx.lineWidth = 1.5;
     ctx.stroke();
@@ -3141,13 +3143,13 @@ function pickWord(r, g, b) {
   }
   const ripples = [];
   canvas.addEventListener("click", (e) => {
-    ripples.push({ x: e.offsetX, y: e.offsetY, t: 0, maxR: 150 + Math.random() * 50 });
+    ripples.push({ x: e.offsetX, y: e.offsetY, t: 0, maxR: 180 + Math.random() * 60 });
   });
   canvas.addEventListener("touchstart", (e) => {
     const t = e.touches[0], rect = canvas.getBoundingClientRect();
-    ripples.push({ x: t.clientX - rect.left, y: t.clientY - rect.top, t: 0, maxR: 150 + Math.random() * 50 });
+    ripples.push({ x: t.clientX - rect.left, y: t.clientY - rect.top, t: 0, maxR: 180 + Math.random() * 60 });
   });
-  const RADIUS = 100, FORCE = 8, FRICTION = 0.88, SPRING = 0.06;
+  const RADIUS = 120, FORCE = 10, FRICTION = 0.88, SPRING = 0.06;
   function animate() {
     ctx.fillStyle = "#0c1525";
     ctx.fillRect(0, 0, W, H);
@@ -3159,8 +3161,8 @@ function pickWord(r, g, b) {
         const force = (1 - dist / RADIUS) * FORCE;
         w.vx += dx / dist * force;
         w.vy += dy / dist * force;
-        w.rotation += (dx > 0 ? 0.02 : -0.02) * (1 - dist / RADIUS);
-        w.scale += (1.3 - w.scale) * 0.1;
+        w.rotation += (dx > 0 ? 0.03 : -0.03) * (1 - dist / RADIUS);
+        w.scale += (1.4 - w.scale) * 0.1;
       } else {
         w.scale += (1 - w.scale) * 0.05;
       }
@@ -3168,8 +3170,8 @@ function pickWord(r, g, b) {
         const rdx = w.x - rip.x, rdy = w.y - rip.y;
         const rd = Math.sqrt(rdx * rdx + rdy * rdy);
         const wave = rip.maxR * (rip.t / 30);
-        if (Math.abs(rd - wave) < 30 && rd > 0.1) {
-          const rforce = (1 - Math.abs(rd - wave) / 30) * 6 * (1 - rip.t / 60);
+        if (Math.abs(rd - wave) < 40 && rd > 0.1) {
+          const rforce = (1 - Math.abs(rd - wave) / 40) * 8 * (1 - rip.t / 60);
           w.vx += rdx / rd * rforce;
           w.vy += rdy / rd * rforce;
         }
@@ -3187,7 +3189,7 @@ function pickWord(r, g, b) {
       ctx.scale(w.scale, w.scale);
       let drawAlpha = w.alpha;
       if (dist < RADIUS * 1.5)
-        drawAlpha = Math.min(1, w.alpha + 0.2 * (1 - dist / (RADIUS * 1.5)));
+        drawAlpha = Math.min(1, w.alpha + 0.25 * (1 - dist / (RADIUS * 1.5)));
       ctx.font = font;
       ctx.fillStyle = `rgba(${w.r},${w.g},${w.b},${drawAlpha.toFixed(2)})`;
       ctx.fillText(w.text, -w.width / 2, -w.fontSize / 2);

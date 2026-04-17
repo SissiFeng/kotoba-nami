@@ -4,7 +4,7 @@
 
 An interactive typographic art piece that reconstructs Hokusai's iconic ukiyo-e masterpiece using hundreds of Japanese words, each pixel-matched to the original's colors.
 
-Built with [pretext](https://github.com/chenglou/pretext) for precise Japanese text measurement.
+https://sissifeng.github.io/kotoba-nami/
 
 ### Interact
 - **Move your cursor** — words ripple apart like water
